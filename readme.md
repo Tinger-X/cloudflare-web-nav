@@ -4,13 +4,14 @@
 
 # 运行效果
 
+[https://nav.tinger.host](https://nav.tinger.host):
 ![TinNav](img/project.png)
 
 # 部署
 
-1. fork或clone本项目
-2. 将[wrangler-expamle.jsonc](wrangler-expamle.jsonc)重命名为`wrangler.jsonc`
-3. 修改`wrangler.jsonc`中的`routes.pattern`, `kv_namespaces.id`, `vars.*`
+1. fork或clone本项目到本地
+2. 将 [wrangler-expamle.jsonc](wrangler-expamle.jsonc) 重命名为 `wrangler.jsonc`
+3. 修改 `wrangler.jsonc` 中的 `routes.pattern`, `kv_namespaces.id`, `vars.*`
 4. 安装依赖：`npm i`
 5. 部署：`npm run deploy`
 
