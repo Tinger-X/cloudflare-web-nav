@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>『Tin Nav』 导航</title>
+  <link rel="shortcut icon" href="/img/icon.png" type="image/x-png">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+  <div id="alert">
+    <div class="alert-title">提 示</div>
+    <div class="alert-msg">提示信息——提示信息</div>
+    <svg class="alert-close" viewBox="0 0 1024 1024">
+      <path
+        d="M592.15872 511.9488L999.61856 26.25536c6.83008-8.06912 1.08544-20.33664-9.46176-20.33664H866.28352c-7.30112 0-14.2848 3.25632-19.08736 8.84736L511.1296 415.39584 175.07328 14.76608c-4.64896-5.59104-11.64288-8.84736-19.08736-8.84736H32.11264c-10.55744 0-16.29184 12.26752-9.46176 20.33664l407.45984 485.69344L22.64064 997.64224c-6.83008 8.06912-1.08544 20.33664 9.46176 20.33664h123.86304c7.30112 0 14.27456-3.25632 19.08736-8.8576l336.05632-400.62976 336.06656 400.62976c4.6592 5.59104 11.64288 8.8576 19.08736 8.8576h123.86304c10.5472 0 16.29184-12.26752 9.46176-20.33664L592.15872 511.9488z m0 0" />
+    </svg>
+  </div>
+
+  <div id="confirm">
+    <div class="confirm-title">请注意</div>
+    <div class="confirm-text">此操作不可逆，是否继续？</div>
+    <div class="confirm-action">
+      <div class="confirm-yes">确&nbsp;&nbsp;定</div>
+      <div class="confirm-no">取&nbsp;&nbsp;消</div>
+    </div>
+  </div>
+
+  <div id="slide-bar"></div>
+
+  <div id="login-btn">点击登录</div>
+
+  <div id="link-detail-layer">
+    <div class="link-detail-container">
+      <div class="link-detail-title">添加快捷方式</div>
+      <label class="link-detail-line">
+        <div class="line-name">导航地址</div>
+        <input type="text" maxlength="128" class="input-url">
+      </label>
+      <label class="link-detail-line">
+        <div class="line-name">图标链接</div>
+        <input type="text" maxlength="128" class="input-icon">
+      </label>
+      <label class="link-detail-line">
+        <div class="line-name">显示名称</div>
+        <input type="text" maxlength="12" class="input-name">
+      </label>
+      <div class="link-detail-submit">提&nbsp;&nbsp;&nbsp;&nbsp;交</div>
+    </div>
+  </div>
+
+  <img id="to-top" src="/img/rocket.svg" alt="返回顶部">
+
+  <img src="/img/banner.png" alt="tin nav" class="banner">
+
+  <div class="search-container">
+    <div class="input-container">
+      <div class="engines-container">
+        <img class="engine" src="/img/google.svg" alt="google">
+        <img class="engine" src="/img/bing.svg" alt="bing">
+        <img class="engine" src="/img/baidu.svg" alt="baidu">
+        <img class="engine" id="engine" src="/img/baidu.svg" alt="baidu">
+      </div>
+      <input id="search-content" type="text" autocomplete="off" placeholder="百度一下，你就知道！">
+      <img id="search-image" src="/img/search.svg" alt="search">
+    </div>
+    <div id="relate-container">
+      <div id="local-relate"></div>
+      <div id="engine-relate"></div>
+    </div>
+  </div>
+
+  <div class="link-groups-container">
+    <div class="link-groups-title-container">
+      <div class="link-groups-title">快捷导航</div>
+      <div class="link-groups-actions">
+        <svg id="link-group-add" class="action-icon" alt="/img/new.svg" viewBox="0 0 1024 1024">
+          <path
+            d="M512 1024C229.238154 1024 0 794.761846 0 512S229.238154 0 512 0s512 229.238154 512 512-229.238154 512-512 512z m236.307692-551.384615H551.384615V275.692308a39.384615 39.384615 0 1 0-78.76923 0v196.923077H275.692308a39.384615 39.384615 0 1 0 0 78.76923h196.923077v196.923077a39.384615 39.384615 0 1 0 78.76923 0V551.384615h196.923077a39.384615 39.384615 0 0 0 0-78.76923z" />
+        </svg>
+        <svg id="link-groups-collapse" class="action-icon" alt="/img/collapse.svg" viewBox="0 0 1024 1024">
+          <path
+            d="M758.613333 465.493333l-221.013333 235.52a35.84 35.84 0 0 1-52.48 0L264.533333 465.066667a35.84 35.84 0 1 1 52.48-49.066667L512 623.786667l194.56-207.36a35.84 35.84 0 1 1 52.48 49.066666zM512 0a512 512 0 1 0 512 512A512 512 0 0 0 512 0z" />
+        </svg>
+      </div>
+    </div>
+    <div id="link-groups"></div>
+  </div>
+
+  <div class="footer">
+    〖Tin Nav〗 版权所有 &copy; 2024 Tinger 保留所有权利
+  </div>
+</body>
+
+</html>
+
+<script src="/static/base.js"></script>
+<script src="/static/local.js"></script>
+<script src="/static/network.js"></script>
+<script src="/static/manager.js"></script>
+<script src="/static/sortable.min.js"></script>
+<script src="/static/script.js"></script>

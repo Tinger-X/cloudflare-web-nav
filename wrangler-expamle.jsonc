@@ -1,0 +1,54 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "tin-nav",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-06-04",
+	"routes": [
+		{
+			"pattern": "nav.your-domain.com",  // worker的专属域名
+			"custom_domain": true
+		}
+	],
+	"workers_dev": false,
+	"assets": {
+		"directory": "./public",
+		"binding": "Assets",
+		"run_worker_first": false,
+		"not_found_handling": "404-page"
+	},
+	"kv_namespaces": [
+		{
+			"binding": "KeyValue",
+			"id": "your-kv-id"  // kv存储库的ID
+		}
+	],
+	"unsafe": {
+		"bindings": [
+			{
+				"name": "WarnLimiter",
+				"type": "ratelimit",
+				"namespace_id": "1001",
+				"simple": {
+					"limit": 30,
+					"period": 60
+				}
+			},
+			{
+				"name": "BanLimiter",
+				"type": "ratelimit",
+				"namespace_id": "1002",
+				"simple": {
+					"limit": 40,
+					"period": 60
+				}
+			}
+		]
+	},
+	"observability": {
+		"enabled": true
+	},
+	"vars": {
+		"AllowOrigin": "nav.your-domain.com",  // 允许的前端
+		"TokenName": "your-token"  // token名称
+	}
+}
