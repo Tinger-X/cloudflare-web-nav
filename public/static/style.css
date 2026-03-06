@@ -263,6 +263,7 @@ body.user #login-btn:hover {
 }
 
 .link-detail-container {
+  position: relative;
   width: 350px;
   padding: 20px 15px;
   background-color: white;
@@ -274,6 +275,21 @@ body.user #login-btn:hover {
   transform: translateY(-400px) scale(0);
   transition: all var(--time-normal);
   transition-timing-function: ease-in-out;
+}
+
+.link-detail-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  fill: rgb(224, 16, 16);
+  transition: all var(--time-normal);
+}
+
+.link-detail-close:hover {
+  transform: rotateZ(180deg) scale(0.92);
 }
 
 .link-detail-container.show {

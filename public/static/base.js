@@ -165,9 +165,7 @@ class Detail {
         console.log("Metadata fetch error:", e);
       }
     });
-
-    this.#$root.addEventListener("click", this.#hide.bind(this));
-    this.#$container.addEventListener("click", e => e.stopPropagation());
+    this.#$container.querySelector(".link-detail-close").addEventListener("click", this.#hide.bind(this));
     this.#$root.querySelector(".link-detail-submit").addEventListener("click", () => {
       let valid = true, url = this.#$url.value, icon = this.#$icon.value, name = this.#$name.value;
       if (url === "") {

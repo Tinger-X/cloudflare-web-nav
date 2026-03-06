@@ -21,6 +21,7 @@ class NavAPI {
   #args: { [k: string]: string; };
   #req: Request;
   #env: Env;
+  #baseUrl: string;
   ip: string;
   #token: string | null;
   #blocked: Set<unknown>;
@@ -36,6 +37,7 @@ class NavAPI {
     this.#args = Object.fromEntries(url.searchParams);
     this.#req = request;
     this.#env = env;
+    this.#baseUrl = url.origin;
     this.ip = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "1.1.1.1";
     this.#token = request.headers.get(env.TokenName);
 
@@ -231,8 +233,7 @@ class NavAPI {
       }
     }
     if (!icon) {
-      const domain = new URL(finalUrl).hostname;
-      icon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+      icon = `${this.#baseUrl}/img/default-icon.svg`;
     }
     return this.#restResp({
       code: 200,
