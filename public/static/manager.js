@@ -110,4 +110,7 @@ class Manager {
     this.#Detail.linkDelete(gid, lid);
     return this.#Network.linkDelete(gid, lid);
   }
+  metadata(url) {
+    return this.#Network.metadata(url);
+  }
 }

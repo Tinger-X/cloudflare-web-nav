@@ -106,7 +106,145 @@ class NavAPI {
     }
   }
 
-  ////////////////////////////////////////////////// = Realte = //////////////////////////////////////////////////
+  ////////////////////////////////////////////////// = Metadata = //////////////////////////////////////////////////
+  static #IconUserAgent = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8"
+  };
+
+  static #normalizeUrl(inputUrl: string): [boolean, string] {
+    let url = inputUrl.trim();
+    if (url === "") {
+      return [false, "URL不能为空"];
+    }
+    if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) {
+      url = "https://" + url;
+    }
+    try {
+      const parsed = new URL(url);
+      if (!["http:", "https:"].includes(parsed.protocol)) {
+        return [false, "仅支持HTTP/HTTPS协议"];
+      }
+      if (!parsed.hostname || !parsed.hostname.includes(".")) {
+        return [false, "无效的域名"];
+      }
+      return [true, url];
+    } catch (e) {
+      return [false, "URL格式无效"];
+    }
+  }
+
+  static #extractTitle(html: string): string {
+    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    if (titleMatch && titleMatch[1]) {
+      return titleMatch[1].trim().substring(0, 12);
+    }
+    return "";
+  }
+
+  static #extractIcon(html: string, baseUrl: string): string | null {
+    const iconPatterns = [
+      /<link[^>]*rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']+)["']/i,
+      /<link[^>]*href=["']([^"']+)["'][^>]*rel=["'](?:shortcut )?icon["']/i,
+      /<link[^>]*rel=["']apple-touch-icon["'][^>]*href=["']([^"']+)["']/i
+    ];
+    for (const pattern of iconPatterns) {
+      const match = html.match(pattern);
+      if (match && match[1]) {
+        try {
+          if (match[1].startsWith("//")) {
+            return "https:" + match[1];
+          } else if (match[1].startsWith("/")) {
+            const base = new URL(baseUrl);
+            return base.origin + match[1];
+          } else if (match[1].startsWith("http")) {
+            return match[1];
+          } else {
+            const base = new URL(baseUrl);
+            return base.origin + "/" + match[1];
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+    }
+    return null;
+  }
+
+  static #extractDomainName(url: string): string {
+    try {
+      const parsed = new URL(url);
+      let hostname = parsed.hostname;
+      hostname = hostname.replace(/^www\./, "");
+      const parts = hostname.split(".");
+      const name = parts[0] || hostname;
+      return name.charAt(0).toUpperCase() + name.slice(1).substring(0, 11);
+    } catch (e) {
+      return "未命名链接";
+    }
+  }
+
+  async handleMetadata() {
+    if (this.#req.method !== "GET") {
+      return this.#restResp({ code: 400, msg: "请求方法错误" });
+    }
+    const inputUrl = this.#args.url;
+    if (!inputUrl) {
+      return this.#restResp({ code: 400, msg: "缺少URL参数" });
+    }
+    const [valid, normalizedUrlOrError] = NavAPI.#normalizeUrl(inputUrl);
+    if (!valid) {
+      return this.#restResp({ code: 400, msg: normalizedUrlOrError });
+    }
+    const normalizedUrl = normalizedUrlOrError;
+    let finalUrl = normalizedUrl;
+    let title = "";
+    let icon: string | null = null;
+    try {
+      const resp = await fetch(normalizedUrl, {
+        method: "GET",
+        headers: NavAPI.#IconUserAgent,
+        redirect: "follow"
+      });
+      if (resp.ok) {
+        finalUrl = resp.url;
+        const html = await resp.text();
+        title = NavAPI.#extractTitle(html);
+        icon = NavAPI.#extractIcon(html, finalUrl);
+      }
+    } catch (e) {
+      console.log("Fetch error:", e);
+    }
+    if (!title) {
+      title = NavAPI.#extractDomainName(finalUrl);
+    }
+    if (!icon) {
+      try {
+        const faviconUrl = new URL(finalUrl).origin + "/favicon.ico";
+        const faviconResp = await fetch(faviconUrl, { method: "HEAD" });
+        if (faviconResp.ok) {
+          icon = faviconUrl;
+        }
+      } catch (e) {
+        console.log("Favicon check error:", e);
+      }
+    }
+    if (!icon) {
+      const domain = new URL(finalUrl).hostname;
+      icon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+    }
+    return this.#restResp({
+      code: 200,
+      data: {
+        url: finalUrl,
+        title: title,
+        icon: icon
+      }
+    });
+  }
+
+  ////////////////////////////////////////////////// = Relate = //////////////////////////////////////////////////
   static #EnginMap: { [k: string]: Function } = {
     baidu: NavAPI.#relateBaidu,
     bing: NavAPI.#relateBing,
@@ -448,7 +586,8 @@ export default {
       init: api.handleInit,
       link: api.handleLink,
       group: api.handleGroup,
-      rank: api.handleRank
+      rank: api.handleRank,
+      metadata: api.handleMetadata
     };
     if (api.path.length === 0) {
       return env.Assets.fetch(`${url.origin}/index.html`);

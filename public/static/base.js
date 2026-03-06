@@ -91,6 +91,22 @@ class Detail {
   #$name = null;
   #info = null;
   #then = null;
+  #sessionId = 0;
+  #urlNormalize(url) {
+    url = url.trim();
+    if (url === "") return null;
+    if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) {
+      url = "https://" + url;
+    }
+    try {
+      const parsed = new URL(url);
+      if (!["http:", "https:"].includes(parsed.protocol)) return null;
+      if (!parsed.hostname || !parsed.hostname.includes(".")) return null;
+      return url;
+    } catch (e) {
+      return null;
+    }
+  }
   #hide() {
     this.#$container.classList.remove("show");
     setTimeout(() => {
@@ -98,12 +114,14 @@ class Detail {
     }, 300);
     this.#$url.value = "";
     this.#$url.classList.remove("error");
+    this.#$url.classList.remove("error-url");
     this.#$icon.value = "";
     this.#$icon.classList.remove("error");
     this.#$name.value = "";
     this.#$name.classList.remove("error");
     this.#then = null;
     this.#info = null;
+    this.#sessionId++;
   }
   constructor(root = "#detail") {
     this.#$root = document.querySelector(root);
@@ -115,28 +133,68 @@ class Detail {
     this.#$url = this.#$root.querySelector(".input-url");
     this.#$icon = this.#$root.querySelector(".input-icon");
     this.#$name = this.#$root.querySelector(".input-name");
-    this.#$root.querySelectorAll("input").forEach($input => {
-      $input.addEventListener("input", () => {
-        $input.classList.remove("error");
-      });
+    this.#$url.classList.remove("error");
+    this.#$url.classList.remove("error-url");
+    this.#$icon.classList.remove("error");
+    this.#$name.classList.remove("error");
+
+    this.#$url.addEventListener("blur", async () => {
+      const url = this.#$url.value.trim();
+      if (url === "") return;
+      const normalizedUrl = this.#urlNormalize(url);
+      if (!normalizedUrl) {
+        this.#$url.classList.add("error");
+        this.#$url.classList.add("error-url");
+        return;
+      } else {
+        this.#$url.classList.remove("error");
+        this.#$url.classList.remove("error-url");
+      }
+      const currentSession = this.#sessionId;
+      try {
+        const result = await TinManager.metadata(normalizedUrl);
+        if (currentSession !== this.#sessionId) return;
+        this.#$url.value = result.url;
+        if (result.icon && this.#$icon.value.trim() === "") {
+          this.#$icon.value = result.icon;
+        }
+        if (result.title && this.#$name.value.trim() === "") {
+          this.#$name.value = result.title;
+        }
+      } catch (e) {
+        console.log("Metadata fetch error:", e);
+      }
     });
+
     this.#$root.addEventListener("click", this.#hide.bind(this));
     this.#$container.addEventListener("click", e => e.stopPropagation());
     this.#$root.querySelector(".link-detail-submit").addEventListener("click", () => {
-      const url = this.#$url.value, icon = this.#$icon.value, name = this.#$name.value;
-      let valid = true;
+      let valid = true, url = this.#$url.value, icon = this.#$icon.value, name = this.#$name.value;
       if (url === "") {
         valid = false;
         this.#$url.classList.add("error");
-      }
+      } else this.#$url.classList.remove("error");
+
       if (icon === "") {
         valid = false;
         this.#$icon.classList.add("error");
+      } else {
+        icon = this.#urlNormalize(icon);
+        if (!icon) {
+          valid = false;
+          this.#$icon.classList.add("error");
+          this.#$icon.classList.add("error-url");
+        } else {
+          this.#$icon.value = icon;
+          this.#$icon.classList.remove("error");
+          this.#$icon.classList.remove("error-url");
+        }
       }
+
       if (name === "") {
         valid = false;
         this.#$name.classList.add("error");
-      }
+      } else this.#$name.classList.remove("error");
       if (!valid) return;
       if (name !== this.#info[0] || url !== this.#info[1] || icon !== this.#info[2]) {
         this.#then && this.#then([name, url, icon]);
@@ -151,6 +209,7 @@ class Detail {
       this.#$container.classList.add("show");
     }, 0);
     this.#info = ["", "", ""];
+    this.#sessionId++;
     return this;
   }
   edit(info) {
@@ -163,6 +222,7 @@ class Detail {
     this.#$icon.value = info[2];
     this.#$name.value = info[0];
     this.#info = info;
+    this.#sessionId++;
     return this;
   }
   then(fn) {

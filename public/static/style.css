@@ -307,12 +307,19 @@ body.user #login-btn:hover {
 }
 
 .link-detail-line:has(.error)::before {
-  content: "请填写此字段";
   font-size: 0.8em;
   color: #bb2d3b;
   position: absolute;
   top: 24px;
   left: 4px;
+}
+
+.link-detail-line:has(.error)::before {
+  content: "请填写此字段";
+}
+
+.link-detail-line:has(.error-url)::before {
+  content: "请填写正确的网址";
 }
 
 .line-name {

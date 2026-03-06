@@ -171,4 +171,15 @@ class NetWork {
       }).catch(e => rej(e.message));
     });
   }
+  metadata(url) {
+    return new PromiseEx((acc, rej) => {
+      fetch(`${this.#Server}/metadata?url=${encodeURIComponent(url)}`, {
+        method: "GET",
+        headers: this.#Header
+      }).then(res => res.json()).then(res => {
+        if (res.code === 200) acc(res.data);
+        else rej(res.msg);
+      }).catch(e => rej(e.message));
+    });
+  }
 }
