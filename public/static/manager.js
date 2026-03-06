@@ -18,8 +18,8 @@ class Manager {
         if (res.code === 200) {
           this.#Token.set(res.data);
           this.#Network.setHeader(this.#Token.makeHeader());
+          this.#Network.user().then(res => this.#onLoginResult && this.#onLoginResult(res));
         }
-        this.#onLoginResult && this.#onLoginResult(res);
       } catch (e) {
         console.log(e);
       }
@@ -30,14 +30,19 @@ class Manager {
   }
   oauthLogin(fn) {
     if (this.#Token.valid()) {
-      return acc(this.#Token.get());
+      this.#Network.setHeader(this.#Token.makeHeader());
+      this.#Network.user().then(res => fn && fn(res));
+    } else {
+      window.open(`https://wx-api.tinger.host/oauth?target=${window.location.href}`);
+      this.#onLoginResult = fn;
     }
-    window.open(`https://wx-api.tinger.host/oauth?target=${window.location.href}`);
-    this.#onLoginResult = fn;
   }
   logout() {
-    this.#Token.del();
-    this.#Network.setHeader({});
+    return new PromiseEx(acc => {
+      this.#Token.del();
+      this.#Network.setHeader({});
+      acc();
+    });
   }
   setEngine(engine) {
     return new PromiseEx((_, rej) => {
@@ -63,13 +68,14 @@ class Manager {
   localRelateDelete(word) {
     this.#Relate.delete(word);
   }
-  detail() {
+  detail(force = false) {
     return new PromiseEx((acc, rej) => {
-      this.#Network.detail().then(res => {
-        if (res === null) rej(-1);
-        else this.#Detail.update(res) && acc(res);
-      }).catch(err => rej(err));
-      acc(this.#Detail.detail());
+      if (force) {
+        this.#Network.detail().then(res => {
+          if (res === null) rej(-1);
+          else this.#Detail.update(res), acc(res);
+        }).catch(err => rej(err));
+      } else acc(this.#Detail.detail());
     });
   }
   rank(opt) {

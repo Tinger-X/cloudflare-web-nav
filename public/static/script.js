@@ -85,15 +85,18 @@ function loginStatus() {
   }
   $loginBtn.addEventListener("click", () => {
     if (TinManager.loginStatus()) {
-      TinManager.logout();
-      $Body.classList.remove("user");
-      $loginBtn.textContent = "点击登录";
+      TinManager.logout().then(() => {
+        $Body.classList.remove("user");
+        $loginBtn.textContent = "点击登录";
+        linkGroups(true);
+      });
     } else {
       TinManager.oauthLogin(res => {
         if (res.code === 200) {
           TinAlert.info("登录成功");
           $Body.classList.add("user");
           $loginBtn.textContent = "退出登录";
+          linkGroups(true);
         } else {
           TinAlert.warn(res.msg);
         }
@@ -183,15 +186,15 @@ function isURL(str) {
   try {
     // 尝试直接解析
     const url = new URL(str);
-    return {is: ["http:", "https:"].includes(url.protocol), res: str};
+    return { is: ["http:", "https:"].includes(url.protocol), res: str };
   } catch (e) {
     try {
       // 尝试补充http协议后再解析
       str = "http://" + str;
       const url = new URL(str);
-      return {is: /^[^\s]+\.[^\s]+$/.test(url.hostname), res: str};
+      return { is: /^[^\s]+\.[^\s]+$/.test(url.hostname), res: str };
     } catch (e) {
-      return {is: false, res: str};
+      return { is: false, res: str };
     }
   }
 }
@@ -531,39 +534,44 @@ function handleGroupSortEnd(event) {
   });
 }
 
-function linkGroups() {
+let GroupOnce = true;
+function linkGroups(force = false) {
   $LinkGroups.innerHTML = "";
-  document.querySelector("#link-group-add").addEventListener("click", () => {
-    const name = "未命名分组" + ($LinkGroups.children.length + 1);
-    const $group = createGroup([[0, name]]);
-    if ($LinkGroups.children.length === 0) {
-      $LinkGroups.appendChild($group);
-    } else {
-      $LinkGroups.insertBefore($group, $LinkGroups.children[0]);
-    }
+  if (GroupOnce) {
+    GroupOnce = false;
+    document.querySelector("#link-group-add").addEventListener("click", () => {
+      const name = "未命名分组" + ($LinkGroups.children.length + 1);
+      const $group = createGroup([[0, name]]);
+      if ($LinkGroups.children.length === 0) {
+        $LinkGroups.appendChild($group);
+      } else {
+        $LinkGroups.insertBefore($group, $LinkGroups.children[0]);
+      }
 
-    TinManager.groupAdd(name).catch(err => {
-      TinAlert.warn(err);
+      TinManager.groupAdd(name).catch(err => {
+        TinAlert.warn(err);
+      });
     });
-  });
-  document.querySelector("#link-groups-collapse").addEventListener("click", () => {
-    const $expanded_list = document.querySelectorAll(".link-group-container.expand");
-    if ($expanded_list.length > 0) {
-      for (let i = 0; i < $expanded_list.length; ++i) {
-        $expanded_list[i].classList.remove("expand");
-        $expanded_list[i].classList.add("collapse");
+    document.querySelector("#link-groups-collapse").addEventListener("click", () => {
+      const $expanded_list = document.querySelectorAll(".link-group-container.expand");
+      if ($expanded_list.length > 0) {
+        for (let i = 0; i < $expanded_list.length; ++i) {
+          $expanded_list[i].classList.remove("expand");
+          $expanded_list[i].classList.add("collapse");
+        }
+        TinManager.collapse({ type: "all", status: 1 });
+      } else {
+        const $collapsed_list = document.querySelectorAll(".link-group-container.collapse");
+        for (let i = 0; i < $collapsed_list.length; ++i) {
+          $collapsed_list[i].classList.remove("collapse");
+          $collapsed_list[i].classList.add("expand");
+        }
+        TinManager.collapse({ type: "all", status: 0 });
       }
-      TinManager.collapse({ type: "all", status: 1 });
-    } else {
-      const $collapsed_list = document.querySelectorAll(".link-group-container.collapse");
-      for (let i = 0; i < $collapsed_list.length; ++i) {
-        $collapsed_list[i].classList.remove("collapse");
-        $collapsed_list[i].classList.add("expand");
-      }
-      TinManager.collapse({ type: "all", status: 0 });
-    }
-  });
-  TinManager.detail().then(detail => {
+    });
+  }
+
+  TinManager.detail(force).then(detail => {
     const [engine, ...groups] = detail;
     setEngine(engine);
     $LinkGroups.innerHTML = "";

@@ -1,6 +1,6 @@
 {
 	"name": "tin-nav",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"private": true,
 	"scripts": {
 		"deploy": "wrangler deploy",
@@ -8,6 +8,6 @@
 	},
 	"devDependencies": {
 		"typescript": "^5.5.2",
-		"wrangler": "^4.20.0"
+		"wrangler": "^4.71.0"
 	}
 }

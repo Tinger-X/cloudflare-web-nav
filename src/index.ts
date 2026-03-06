@@ -6,7 +6,7 @@ class NavAPI {
       [0, "基础工具"],
       ["在线PS", "https://ps.gaoding.com/", "https://www.uupoop.com/favicon.ico"],
       ["ProcessOn", "https://www.processon.com/diagrams", "https://www.processon.com/favicon.ico"],
-      ["极简壁纸", "https://bz.zzzmh.cn/index", "https://bz.zzzmh.cn/favicon.ico"],
+      ["电脑壁纸", "https://haowallpaper.com/", "https://haowallpaper.com/favicon.ico"],
       ["IconFont", "https://www.iconfont.cn/", "https://img.alicdn.com/imgextra/i2/O1CN01ZyAlrn1MwaMhqz36G_!!6000000001499-73-tps-64-64.ico"],
       ["非凡资源", "https://cj.ffzyapi.com/", "https://cj.ffzyapi.com/template/default/img/favicon.png"],
       ["文本转语音", "https://www.text-to-speech.cn/", "https://www.text-to-speech.cn/img/speech.png"]
@@ -208,7 +208,7 @@ class NavAPI {
     const tokenKey = `${NavAPI.#Prefix.token}${this.#token}`;
     const detail = await this.#getKV(tokenKey);
     if (detail === null) {
-      await this.#setKV(tokenKey, ["bing"]);
+      await this.#setKV(tokenKey, NavAPI.#InitDetail);
       return this.#restResp({ code: 200, msg: "注册成功" });
     }
     return this.#restResp({ code: 200, msg: "登录成功" });

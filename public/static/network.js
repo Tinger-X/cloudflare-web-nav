@@ -13,6 +13,14 @@ class NetWork {
   setHeader(header) {
     this.#Header = header;
   }
+  user() {
+    return new PromiseEx((acc, rej) => {
+      fetch(`${this.#Server}/user`, {
+        method: "POST",
+        headers: this.#Header
+      }).then(res => res.json()).then(res => acc(res));
+    });
+  }
   detail() {
     return new PromiseEx((acc, rej) => {
       fetch(`${this.#Server}/detail`, {

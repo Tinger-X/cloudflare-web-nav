@@ -89,9 +89,7 @@ class LocalDetail {
     if (strNow !== strNew) {
       this.#Data = data;
       this.#write();
-      return true;
     }
-    return false;
   }
   setEngine(engine) {
     this.#Data[0] = engine;
