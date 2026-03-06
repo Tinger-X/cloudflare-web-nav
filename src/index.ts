@@ -233,7 +233,7 @@ class NavAPI {
       }
     }
     if (!icon) {
-      icon = `${this.#baseUrl}/img/default-icon.svg`;
+      icon = `${this.#baseUrl}/img/icon.svg`;
     }
     return this.#restResp({
       code: 200,
