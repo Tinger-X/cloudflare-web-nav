@@ -117,6 +117,7 @@ class Detail {
     this.#$url.classList.remove("error-url");
     this.#$icon.value = "";
     this.#$icon.classList.remove("error");
+    this.#$icon.classList.remove("error-url");
     this.#$name.value = "";
     this.#$name.classList.remove("error");
     this.#then = null;
@@ -136,6 +137,7 @@ class Detail {
     this.#$url.classList.remove("error");
     this.#$url.classList.remove("error-url");
     this.#$icon.classList.remove("error");
+    this.#$icon.classList.remove("error-url");
     this.#$name.classList.remove("error");
 
     this.#$url.addEventListener("blur", async () => {
