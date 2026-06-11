@@ -70,12 +70,13 @@ class Manager {
   }
   detail(force = false) {
     return new PromiseEx((acc, rej) => {
-      if (force) {
+      const local = this.#Detail.detail();
+      if (force || !local || local.length < 2) {
         this.#Network.detail().then(res => {
           if (res === null) rej(-1);
           else this.#Detail.update(res), acc(res);
         }).catch(err => rej(err));
-      } else acc(this.#Detail.detail());
+      } else acc(local);
     });
   }
   rank(opt) {
